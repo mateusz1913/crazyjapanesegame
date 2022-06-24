@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import React, { useState, useEffect } from 'react';
+import { Pose } from '../PoseFrameProcessor';
+import Animated, { useAnimatedReaction } from 'react-native-reanimated';
 
 const { width: WIDTH, height: HEIGHT } = Dimensions.get('window');
 
@@ -8,72 +10,24 @@ type TPoint = {
   x: number;
 };
 
-const POINTS: TPoint[] = [
-  {
-    y: 100,
-    x: 100,
-  },
-  {
-    y: 150,
-    x: 250,
-  },
-  {
-    y: 400,
-    x: 150,
-  },
-  {
-    y: 300,
-    x: 50,
-  },
-  {
-    y: 500,
-    x: 300,
-  },
-  {
-    y: 500,
-    x: 3,
-  },
-];
+type Props = {
+  isLeft: boolean;
+  isIn: boolean;
+};
 
-const TestCanvas = () => {
-  const [points, setPoints] = useState<TPoint[]>(POINTS);
-  const [isLeft, setIsLeft] = useState(true);
-
-  const getSmallestX = (pts: TPoint[]) => {
-    return Math.min(...pts.map(p => p.x));
-  };
-
-  const getLargestX = (pts: TPoint[]) => {
-    return Math.max(...pts.map(p => p.x));
-  };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsLeft(!isLeft);
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, [isLeft]);
-
+const TestCanvas = ({ isLeft, isIn }: Props) => {
   return (
     <View style={styles.container}>
       <View style={isLeft ? styles.halfMaskLeft : styles.halfMaskRight} />
-      {/* {isLeft ? (
-        <View style={styles.halfMaskLeft} />
-      ) : (
-        <View style={styles.halfMaskRight} />
-      )} */}
-      {points.map(pt => (
-        <View
-          style={[
-            styles.point,
-            {
-              top: pt.y,
-              left: pt.x,
-            },
-          ]}
-        />
-      ))}
+      <View
+        style={[
+          styles.inOut,
+          {
+            backgroundColor: isIn ? 'red' : 'green',
+          },
+        ]}>
+        <Text>{isIn ? 'IN' : 'OUT'}</Text>
+      </View>
     </View>
   );
 };
@@ -82,6 +36,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: '100%',
+    position: 'absolute',
   },
   halfMaskLeft: {
     height: HEIGHT,
@@ -91,6 +46,7 @@ const styles = StyleSheet.create({
     left: 0,
     position: 'absolute',
     backgroundColor: 'red',
+    opacity: 0.5,
   },
   halfMaskRight: {
     height: HEIGHT,
@@ -101,13 +57,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     backgroundColor: 'red',
   },
-  point: {
-    backgroundColor: 'blue',
+  inOut: {
     position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 40,
+    width: 100,
+    height: 100,
     zIndex: 100,
-    width: 5,
-    height: 5,
-    borderRadius: 5,
+    padding: 12,
   },
 });
 
