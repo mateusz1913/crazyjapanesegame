@@ -19,6 +19,8 @@ target 'crazyjapanesegame' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
+  pod 'GoogleMLKit/PoseDetectionAccurate', '2.6.0'
+
   target 'crazyjapanesegameTests' do
     inherit! :complete
     # Pods for testing
