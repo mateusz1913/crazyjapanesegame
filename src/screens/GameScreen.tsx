@@ -1,24 +1,30 @@
 import * as React from 'react';
 import Animated, {
   interpolate,
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
+
 import { StyleSheet, useWindowDimensions } from 'react-native';
 import {
   useCameraDevices,
   useFrameProcessor,
 } from 'react-native-vision-camera';
+
 import { Camera } from 'react-native-vision-camera';
 import { detectPose } from '../PoseFrameProcessor';
+import TestCanvas from '../components/TestCanvas';
 
 const IS_FRONT_CAMERA = true;
 
-function GameScreen() {
+const GameScreen = () => {
   const [hasPermission, setHasPermission] = React.useState(false);
   const leftAnkle = useSharedValue({ x: 0, y: 0 });
   const frameValue = useSharedValue({ height: 1, width: 1 });
   const dims = useWindowDimensions();
+  const [isLeft, setIsLeft] = React.useState(true);
+  const [isIn, setIsIn] = React.useState(false);
 
   const devices = useCameraDevices();
   const device = IS_FRONT_CAMERA ? devices.front : devices.back;
@@ -34,9 +40,16 @@ function GameScreen() {
     'worklet';
     const detectedPoses = detectPose(frame);
     if (detectedPoses?.[0]) {
-      const pose = detectedPoses[0];
-      leftAnkle.value = IS_FRONT_CAMERA ? pose.rightAnkle : pose.leftAnkle;
+      const _pose = detectedPoses[0];
+      leftAnkle.value = IS_FRONT_CAMERA ? _pose.rightAnkle : _pose.leftAnkle;
       frameValue.value = { height: frame.height, width: frame.width };
+
+      const ankle = IS_FRONT_CAMERA ? _pose.rightAnkle : _pose.leftAnkle;
+
+      if (ankle.x > 0 && frame.width > 0) {
+        const _isOnTheLeft = frame.width / ankle.x > 2;
+        runOnJS(setIsIn)(_isOnTheLeft);
+      }
     }
   }, []);
 
@@ -70,7 +83,9 @@ function GameScreen() {
         frameProcessorFps={5}
       />
       <Animated.View style={animatedStyle} />
+      <TestCanvas isLeft={isLeft} isIn={isIn} />
     </>
   ) : null;
-}
+};
+
 export default GameScreen;
