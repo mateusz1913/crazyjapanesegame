@@ -26,6 +26,7 @@ import {
   LearnMoreLinks,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
+import TestCanvas from './components/TestCanvas';
 
 const Section: React.FC<{
   title: string;
@@ -61,6 +62,8 @@ const App = () => {
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
+
+  return <TestCanvas />
 
   return (
     <SafeAreaView style={backgroundStyle}>
